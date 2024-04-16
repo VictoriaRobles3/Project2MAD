@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:artfolio/homePage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -40,7 +41,7 @@ class _SplashScreenState extends State<SplashScreen>
     Timer(widget.duration, () {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (BuildContext context) => HomePage(), // chamge for authentication screen log in
+          builder: (BuildContext context) => HomePage(), // change for authentication screen log in
         ),
       );
     });
@@ -59,15 +60,20 @@ class _SplashScreenState extends State<SplashScreen>
       body: Center(
         child: FadeTransition(
           opacity: _animation,
-          child: Text(
-            'Artfolio',
-            style: GoogleFonts.macondo(
-              textStyle: TextStyle(
-                fontSize: 50,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
+          child: AnimatedTextKit(
+            animatedTexts: [
+              ScaleAnimatedText(
+                'Artfolio', 
+                textStyle: GoogleFonts.macondo(
+                  textStyle: TextStyle(
+                    fontSize: 50,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
               ),
-            ),
+            ],
+            totalRepeatCount: 2,
           ),
         ),
       ),
