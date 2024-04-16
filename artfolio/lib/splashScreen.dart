@@ -58,25 +58,75 @@ class _SplashScreenState extends State<SplashScreen>
     return Scaffold(
       backgroundColor: widget.backgroundColor,
       body: Center(
-        child: FadeTransition(
-          opacity: _animation,
-          child: AnimatedTextKit(
-            animatedTexts: [
-              ScaleAnimatedText(
-                'Artfolio', 
-                textStyle: GoogleFonts.macondo(
-                  textStyle: TextStyle(
-                    fontSize: 50,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            FadeTransition(
+              opacity: _animation,
+              child: AnimatedTextKit(
+                animatedTexts: [
+                  ScaleAnimatedText(
+                    'Artfolio', 
+                    textStyle: GoogleFonts.macondo(
+                      textStyle: TextStyle(
+                        fontSize: 50,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
                   ),
-                ),
+                ],
+                totalRepeatCount: 3,
               ),
-            ],
-            totalRepeatCount: 2,
-          ),
+            ),
+            SizedBox(height: 100),
+            BuzzingImageAnimation(),
+          ],
         ),
       ),
+    );
+  }
+}
+
+class BuzzingImageAnimation extends StatefulWidget {
+  @override
+  _BuzzingImageAnimationState createState() => _BuzzingImageAnimationState();
+}
+
+class _BuzzingImageAnimationState extends State<BuzzingImageAnimation>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 500),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Transform.translate(
+          offset: Offset(0.0, _controller.value * 50),
+          child: Image.asset(
+            'assets/file.png',
+            width: 150,
+            height: 150,
+          ),
+        );
+      },
     );
   }
 }

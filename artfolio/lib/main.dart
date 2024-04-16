@@ -19,7 +19,7 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: SplashScreen(
-        backgroundColor: Color.fromARGB(255, 252, 242, 245),
+        backgroundColor: Color.fromARGB(255, 244, 248, 255),
         duration: Duration(seconds: 2),
       ),  
     );
