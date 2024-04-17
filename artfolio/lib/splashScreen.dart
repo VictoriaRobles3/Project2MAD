@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:animated_text_kit/animated_text_kit.dart';
-import 'package:artfolio/homePage.dart';
+import 'package:artfolio/firebase_auth/login.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -41,7 +41,7 @@ class _SplashScreenState extends State<SplashScreen>
     Timer(widget.duration, () {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (BuildContext context) => HomePage(), // change for authentication screen log in
+          builder: (BuildContext context) => LoginPage(), // change for authentication screen log in
         ),
       );
     });
