@@ -1,3 +1,4 @@
+import 'package:artfolio/homePage.dart';
 import 'package:artfolio/splashScreen.dart';
 import 'package:flutter/material.dart';
 import 'firebase_options.dart';
@@ -18,10 +19,11 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: SplashScreen(
+        home: HomePage(),
+    /*  home: SplashScreen(
         backgroundColor: Color.fromARGB(255, 244, 248, 255),
         duration: Duration(seconds: 2),
-      ),  
+      ), */ 
     );
   }
 }
