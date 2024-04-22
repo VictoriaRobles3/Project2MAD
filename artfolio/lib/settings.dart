@@ -14,6 +14,14 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _dobController = TextEditingController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  bool _isPasswordEditable = false;
+  bool _isDateOfBirthEditable = false;
+
+  String _dateOfBirth = "";
+
   final UserService _userService = UserService();
   User? _currentUser;
   DocumentSnapshot? _userData;
@@ -28,12 +36,32 @@ class _SettingsPageState extends State<SettingsPage> {
   void initState() {
     super.initState();
     _getCurrentUser();
+     _loadUserData();
   }
 
   void _getCurrentUser() async {
     _currentUser = await _auth.currentUser;
     if (_currentUser != null) {
       _fetchUserData();
+    }
+  }
+
+  Future<void> _loadUserData() async {
+    final currentUser = _auth.currentUser;
+    if (currentUser != null) {
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(currentUser.uid).get();
+      if (userDoc.exists) {
+          Timestamp dobTimestamp = userDoc['dob'];
+
+          setState(()  {
+         _dateOfBirth = DateFormat('yyyy-MM-dd').format(dobTimestamp.toDate());
+         _dobController.text = _dateOfBirth;
+          print("Retrieved DOB: $_dateOfBirth"); 
+        });
+        } else {
+          print("No DOB found in user document");
+        }
+  
     }
   }
 
@@ -53,18 +81,33 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Future<void> _updateUserData() async {
+    if (_formKey.currentState!.validate()) {
     try {
-      await _userService.updateUserData(
-        _currentUser!.uid,
-        _firstNameController.text,
-        _lastNameController.text,
-      );
-      _fetchUserData();
-      print('User data updated successfully!');
+      final currentUser = _auth.currentUser;
+      if (currentUser != null) {
+        if (_isPasswordEditable && _passwordController.text.isNotEmpty) {
+          await currentUser.updatePassword(_passwordController.text);
+        }
+        await FirebaseFirestore.instance.collection('users').doc(currentUser.uid).update({
+          'dob': Timestamp.fromDate(DateTime.parse(_dateOfBirth)),
+        });
+        await FirebaseFirestore.instance.collection('users').doc(currentUser.uid).update({
+          'firstName': _firstNameController.text,
+          'lastName': _lastNameController.text,
+        });
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Information updated successfully!'),
+        ));
+      }
     } catch (e) {
-      print('Error updating user data: $e');
+      print('Error updating information: $e');
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Error updating information: $e'),
+      ));
     }
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -107,6 +150,10 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                   ),
                   SizedBox(height: 10),
+                  _buildEditablePasswordField(),
+                  SizedBox(height: 10),
+                  _buildDobField(),
+                  SizedBox(height: 10),
                   Text(
                     'Registration Date: ${DateFormat('dd-MM-yyy').format((_userData!['registrationDatetime'] as Timestamp).toDate())}',
                     style: GoogleFonts.podkova(
@@ -139,6 +186,95 @@ class _SettingsPageState extends State<SettingsPage> {
               : Text(''),
     );
   }
+  Widget _buildDobField() {
+  return Row(
+    children: [
+      Expanded(
+        child: TextFormField(
+          controller: _dobController,
+          style: GoogleFonts.podkova(
+            textStyle: TextStyle(fontSize: 22),
+          ),
+          enabled: _isDateOfBirthEditable,
+          decoration: InputDecoration(
+            labelText: 'Date of Birth',
+          ),
+        ),
+      ),
+      ElevatedButton(
+        onPressed: () async {
+          _isDateOfBirthEditable = !_isDateOfBirthEditable;
+          final selectedDate = await showDatePicker(
+            context: context,
+            initialDate: DateTime.now(),
+            firstDate: DateTime(1900),
+            lastDate: DateTime.now(),
+          );
+          if (selectedDate != null) {
+            setState(() {
+              _dateOfBirth = DateFormat('yyyy-MM-dd').format(selectedDate);
+              _dobController.text = _dateOfBirth;
+            });
+          }
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Color.fromARGB(255, 253, 239, 252),
+        ),
+        child: Text(
+          'Edit',
+          style: TextStyle(
+            fontSize: 16,
+            color: Color.fromARGB(255, 235, 109, 109),
+          ),
+        ),
+      ),
+    ],
+  );
+  }
+
+  Widget _buildEditablePasswordField() {
+    return Row(
+      children: [
+        Expanded(
+          child: TextFormField(
+            style: GoogleFonts.podkova(
+              textStyle: TextStyle(fontSize: 25),
+            ),
+            controller: _passwordController,
+            obscureText: true,
+            decoration: InputDecoration(
+              labelText: 'Password',
+            ),
+            validator: (value) {
+              if (value!.isEmpty) {
+                return 'Password is required';
+              }
+              return null;
+            },
+          ),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            setState(() {
+              _isPasswordEditable = !_isPasswordEditable;
+            });
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Color.fromARGB(255, 253, 239, 252),
+          ),
+          child: Text(
+            'Edit',
+            style: TextStyle(
+              fontSize: 16,
+              color: Color.fromARGB(255, 235, 109, 109),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  
 
   Widget _buildEditableField(
     String label,
