@@ -48,53 +48,54 @@ class _ProfilePageState extends State<ProfilePage> {
       body: _userData != null
           ? Padding(
               padding: const EdgeInsets.all(20.0),
-              child: Column(
+              child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Center(
-                    child: Stack(
-                      children: [
-                        CircleAvatar(
-                          radius: 60,
-                          backgroundColor: Colors.grey,
-                          child: Text(
-                            'Add Profile Picture',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.white,
-                            ),
-                          ),
+                  CircleAvatar(
+                    radius: 60,
+                    backgroundColor: Colors.grey,
+                    child: Text(
+                      'Add Profile Picture',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 50),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: 25),
+
+                      Text(
+                        '${_userData!['firstName']} ${_userData!['lastName']}',
+                        style: GoogleFonts.jetBrainsMono(
+                          textStyle: TextStyle(fontSize: 15),
                         ),
-                      ],
-                    ),
+                      ),
+                      SizedBox(height: 10),
+                      Text(
+                        'Birthday: ${DateFormat('dd-MM-yyyy').format((_userData!['dob'] as Timestamp).toDate())}',
+                        style: GoogleFonts.jetBrainsMono(
+                          textStyle: TextStyle(fontSize: 13),
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      Text(
+                        'User since: ${DateFormat('dd-MM-yyyy').format((_userData!['registrationDatetime'] as Timestamp).toDate())}',
+                        style: GoogleFonts.jetBrainsMono(
+                          textStyle: TextStyle(fontSize: 12),
+                        ),
+                      ),
+                      SizedBox(height: 50),
+                    ],
                   ),
-                  SizedBox(height: 20),
-                  Text(
-                    '${_userData!['firstName']} ${_userData!['lastName']}',
-                    style: GoogleFonts.jetBrainsMono(
-                      textStyle: TextStyle(fontSize: 15),
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    'Birthday: ${DateFormat('dd-MM-yyyy').format((_userData!['dob'] as Timestamp).toDate())}',
-                    style: GoogleFonts.jetBrainsMono(
-                      textStyle: TextStyle(fontSize: 13),
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    'User since: ${DateFormat('dd-MM-yyyy').format((_userData!['registrationDatetime'] as Timestamp).toDate())}',
-                    style: GoogleFonts.jetBrainsMono(
-                      textStyle: TextStyle(fontSize: 12),
-                    ),
-                  ),
-                  SizedBox(height: 50),
                 ],
               ),
             )
           : _currentUser != null
-              ? CircularProgressIndicator()
+              ? Center(child: CircularProgressIndicator())
               : Text(''),
     );
   }
