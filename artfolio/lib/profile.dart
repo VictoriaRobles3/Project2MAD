@@ -202,58 +202,68 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                   SizedBox(height: 20),
                   Expanded(
-                    child: ListView.builder(
-                      itemCount: _posts.length,
-                      itemBuilder: (context, index) {
-                        final post = _posts[index];
-                        return Stack(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Image.network(
-                                    post['postURL'],
-                                    width: double.infinity,
-                                    height: 200,
-                                    fit: BoxFit.cover,
-                                  ),
-                                  SizedBox(height: 8),
-                                  Text(
-                                    '${post['firstName']} ${post['lastName']}',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  SizedBox(height: 4),
-                                  Text(post['description']),
-                                  SizedBox(height: 4),
-                                  Text(
-                                    DateFormat('yyyy-MM-dd HH:mm')
-                                        .format((post['timeOfPost'] as Timestamp).toDate()),
-                                    style: TextStyle(
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                ],
-                              ),
+  child: ListView.builder(
+    itemCount: _posts.length,
+    itemBuilder: (context, index) {
+      final post = _posts[index];
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: Stack(
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AspectRatio(
+                  aspectRatio: 1.0,
+                  child: Image.network(
+                    post['postURL'],
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${post['firstName']} ${post['lastName']}',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
                             ),
-                            Positioned(
-                              top: 8,
-                              right: 8,
-                              child: IconButton(
-                                icon: Icon(Icons.delete, color: Colors.red),
-                                onPressed: () {
-                                  _showDeleteConfirmation(post['id']);
-                                },
-                              ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(post['description']),
+                          SizedBox(height: 4),
+                          Text(
+                            DateFormat('yyyy-MM-dd HH:mm').format((post['timeOfPost'] as Timestamp).toDate()),
+                            style: TextStyle(
+                              color: Colors.grey,
                             ),
-                          ],
-                        );
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.delete, color: Colors.red),
+                      onPressed: () {
+                        _showDeleteConfirmation(post['id']);
                       },
                     ),
-                  ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    },
+  ),
+),
+
                 ],
               ),
             )
