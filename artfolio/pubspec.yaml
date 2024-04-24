@@ -9,18 +9,19 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cloud_firestore: ^4.17.1
-  firebase_analytics: ^10.10.3
+  cloud_firestore: ^4.17.2
+  firebase_analytics: ^10.10.4
   firebase_core: ^2.28.0
-  firebase_messaging: ^14.9.0
+  firebase_messaging: ^14.9.1
   google_fonts: ^6.2.1
-  firebase_auth: ^4.19.3
+  firebase_auth: ^4.19.4
   intl: ^0.19.0
   datetime_picker_formfield_new: ^2.1.0
   animated_text_kit: ^4.2.2
-  firebase_storage: ^11.7.3
+  firebase_storage: ^11.7.4
   image_picker: ^1.1.0
-  firebase_app_check: ^0.2.2+3
+  firebase_app_check: ^0.2.2+4
+  provider: ^6.1.2
 
 dev_dependencies:
   flutter_test:
