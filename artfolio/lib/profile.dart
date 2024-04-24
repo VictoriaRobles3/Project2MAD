@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:artfolio/addNewPost.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -270,6 +271,17 @@ class _ProfilePageState extends State<ProfilePage> {
           : _currentUser != null
               ? Center(child: CircularProgressIndicator())
               : Text(''),
-    );
+              floatingActionButton: Align(
+      alignment: Alignment.bottomCenter,
+      child: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => AddNewPost()),
+        );
+      },
+      child: Icon(Icons.add),
+    ),
+    ));
   }
 }
