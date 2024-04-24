@@ -5,7 +5,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'userService.dart';
 import 'dart:async';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:artfolio/themes/themeProvider.dart';
@@ -26,7 +25,6 @@ class _SettingsPageState extends State<SettingsPage> {
 
   String _dateOfBirth = "";
 
-  final UserService _userService = UserService();
   User? _currentUser;
   DocumentSnapshot? _userData;
 
