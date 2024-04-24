@@ -16,6 +16,7 @@ class _ProfilePageState extends State<ProfilePage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   User? _currentUser;
   DocumentSnapshot? _userData;
+  List<Map<String, dynamic>> _posts = [];
 
   String imageURL = '';
 
@@ -23,6 +24,8 @@ class _ProfilePageState extends State<ProfilePage> {
   void initState() {
     super.initState();
     _getCurrentUser();
+    _fetchUserData();
+    _fetchPosts();
   }
 
   void _getCurrentUser() async {
@@ -30,6 +33,19 @@ class _ProfilePageState extends State<ProfilePage> {
     if (_currentUser != null) {
       _fetchUserData();
     }
+  }
+
+  Future<void> _fetchPosts() async {
+    final QuerySnapshot snapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(_currentUser!.uid)
+        .collection('posts')
+        .orderBy('timeOfPost', descending: true)
+        .get();
+
+    setState(() {
+      _posts = snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+    });
   }
 
   void _fetchUserData() async {
@@ -59,9 +75,7 @@ class _ProfilePageState extends State<ProfilePage> {
       await FirebaseFirestore.instance.collection('users').doc(_currentUser!.uid).update({
         'profilePictureUrl': imageURL,
       });
-      setState(() {
-        
-      });
+      setState(() {});
       print('Profile picture uploaded and URL saved to database successfully!');
     } catch (e) {
       print('Error uploading profile picture: $e');
@@ -75,84 +89,122 @@ class _ProfilePageState extends State<ProfilePage> {
         title: Text('Profile'),
       ),
       body: _userData != null
-    ? Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CircleAvatar(
-                  radius: 60,
-                  backgroundColor: Colors.grey,
-                  backgroundImage:
-                      imageURL.isNotEmpty ? NetworkImage(imageURL) : null,
-                  child: imageURL.isEmpty
-                      ? IconButton(
-                          icon: Icon(Icons.add_a_photo),
-                          onPressed: () async {
-                            ImagePicker imagePicker = ImagePicker();
-                            XFile? file = await imagePicker.pickImage(
-                                source: ImageSource.gallery);
-                            print('${file?.path}');
+          ? Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      CircleAvatar(
+                        radius: 60,
+                        backgroundColor: Colors.grey,
+                        backgroundImage:
+                            imageURL.isNotEmpty ? NetworkImage(imageURL) : null,
+                        child: imageURL.isEmpty
+                            ? IconButton(
+                                icon: Icon(Icons.add_a_photo),
+                                onPressed: () async {
+                                  ImagePicker imagePicker = ImagePicker();
+                                  XFile? file = await imagePicker.pickImage(
+                                      source: ImageSource.gallery);
+                                  print('${file?.path}');
 
-                            if (file == null) return;
-                            await _uploadImage(File(file.path));
-                          },
-                        )
-                      : null,
-                ),
-                SizedBox(width: 20),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(height: 25),
-                    Text(
-                      '${_userData!['firstName']} ${_userData!['lastName']}',
-                      style: GoogleFonts.jetBrainsMono(
-                        textStyle: TextStyle(fontSize: 15),
+                                  if (file == null) return;
+                                  await _uploadImage(File(file.path));
+                                },
+                              )
+                            : null,
                       ),
-                    ),
-                    SizedBox(height: 10),
-                    Text(
-                      'Birthday: ${DateFormat('dd-MM-yyyy').format((_userData!['dob'] as Timestamp).toDate())}',
-                      style: GoogleFonts.jetBrainsMono(
-                        textStyle: TextStyle(fontSize: 13),
+                      SizedBox(width: 20),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(height: 25),
+                          Text(
+                            '${_userData!['firstName']} ${_userData!['lastName']}',
+                            style: GoogleFonts.jetBrainsMono(
+                              textStyle: TextStyle(fontSize: 15),
+                            ),
+                          ),
+                          SizedBox(height: 10),
+                          Text(
+                            'Birthday: ${DateFormat('dd-MM-yyyy').format((_userData!['dob'] as Timestamp).toDate())}',
+                            style: GoogleFonts.jetBrainsMono(
+                              textStyle: TextStyle(fontSize: 13),
+                            ),
+                          ),
+                          SizedBox(height: 10),
+                          Text(
+                            'User since: ${DateFormat('dd-MM-yyyy').format((_userData!['registrationDatetime'] as Timestamp).toDate())}',
+                            style: GoogleFonts.jetBrainsMono(
+                              textStyle: TextStyle(fontSize: 12),
+                            ),
+                          ),
+                          SizedBox(height: 50),
+                        ],
                       ),
-                    ),
-                    SizedBox(height: 10),
-                    Text(
-                      'User since: ${DateFormat('dd-MM-yyyy').format((_userData!['registrationDatetime'] as Timestamp).toDate())}',
-                      style: GoogleFonts.jetBrainsMono(
-                        textStyle: TextStyle(fontSize: 12),
-                      ),
-                    ),
-                    SizedBox(height: 50),
-                  ],
-                ),
-              ],
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                ImagePicker imagePicker = ImagePicker();
-                XFile? file = await imagePicker.pickImage(
-                    source: ImageSource.gallery);
-                print('${file?.path}');
+                    ],
+                  ),
+                  ElevatedButton(
+                    onPressed: () async {
+                      ImagePicker imagePicker = ImagePicker();
+                      XFile? file = await imagePicker.pickImage(
+                          source: ImageSource.gallery);
+                      print('${file?.path}');
 
-                if (file == null) return;
-                await _uploadImage(File(file.path));
-              },
-              child: Text('Update Profile Picture'),
-            ),
-          ],
-        ),
-      )
-    : _currentUser != null
-        ? Center(child: CircularProgressIndicator())
-        : Text(''),
-
+                      if (file == null) return;
+                      await _uploadImage(File(file.path));
+                    },
+                    child: Text('Update Profile Picture'),
+                  ),
+                  SizedBox(height: 20),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: _posts.length,
+                      itemBuilder: (context, index) {
+                        final post = _posts[index];
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Image.network(
+                                post['postURL'],
+                                width: double.infinity,
+                                height: 200,
+                                fit: BoxFit.cover,
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                '${post['firstName']} ${post['lastName']}',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              Text(post['description']),
+                              SizedBox(height: 4),
+                              Text(
+                                DateFormat('yyyy-MM-dd HH:mm')
+                                    .format((post['timeOfPost'] as Timestamp).toDate()),
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            )
+          : _currentUser != null
+              ? Center(child: CircularProgressIndicator())
+              : Text(''),
     );
   }
 }
-

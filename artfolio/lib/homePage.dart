@@ -1,4 +1,5 @@
 import 'package:artfolio/menu.dart';
+import 'package:artfolio/profile.dart';
 import 'package:artfolio/splashScreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -37,24 +38,23 @@ class HomePage extends StatelessWidget {
               SizedBox(height: 20),
               GestureDetector(
                 onTap: () {
-                  FirebaseAuth.instance.signOut();
-                  Navigator.pushReplacement(
+                  Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => SplashScreen()),
+                    MaterialPageRoute(builder: (context) => ProfilePage()),
                   );
                 },
                 child: Container(
                   width: 150,
                   height: 50,
                   decoration: BoxDecoration(
-                    color: Colors.red,
+                    color: Colors.blue,
                     borderRadius: BorderRadius.circular(15),
                   ),
                   child: Center(
                     child: Text(
-                      "Sign out",
+                      "View Profile",
                       style: TextStyle(
-                        color: Colors.black,
+                        color: Colors.white,
                         fontWeight: FontWeight.bold,
                         fontSize: 20,
                       ),

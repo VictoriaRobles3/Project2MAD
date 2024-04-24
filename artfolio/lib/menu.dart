@@ -1,3 +1,4 @@
+import 'package:artfolio/addNewPost.dart';
 import 'package:artfolio/homePage.dart';
 import 'package:artfolio/profile.dart';
 import 'package:artfolio/settings.dart';
@@ -39,7 +40,11 @@ class MenuPage extends StatelessWidget {
             icon: Icons.add_circle,
             title: 'Add a new post',
             onTap: () {
-              Navigator.pushNamed(context, '/add_post'); //still need to adjust
+              Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (BuildContext context) => AddNewPost(),
+        ),
+      );
             },
           ),
           _buildMenuItem(
