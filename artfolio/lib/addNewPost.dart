@@ -30,17 +30,14 @@ class _AddNewPostState extends State<AddNewPost> {
 
   Future<void> _createPost() async {
   if (_postImageUrl == null || _descriptionController.text.isEmpty) {
-    // Show an error message if the image or description is missing
     return;
   }
 
   try {
-    // Get the current user's first and last name
     final userDoc = await FirebaseFirestore.instance.collection('users').doc(_currentUser!.uid).get();
     final firstName = userDoc.get('firstName');
     final lastName = userDoc.get('lastName');
 
-    // Create a new post document in the "posts" subcollection
     await FirebaseFirestore.instance
         .collection('users')
         .doc(_currentUser!.uid)
@@ -53,14 +50,11 @@ class _AddNewPostState extends State<AddNewPost> {
       'timeOfPost': FieldValue.serverTimestamp(),
     });
 
-    // Clear the description input field
     _descriptionController.clear();
 
-    // Navigate back to the previous screen or perform any other desired action
     Navigator.of(context).pop();
   } catch (e) {
     print('Error creating post: $e');
-    // Show an error message to the user
   }
 }
 

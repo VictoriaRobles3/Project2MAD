@@ -178,7 +178,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 20), // Add some spacing
+                  SizedBox(height: 20),
                   GestureDetector(
                     onTap: () {
                       FirebaseAuth.instance.signOut();

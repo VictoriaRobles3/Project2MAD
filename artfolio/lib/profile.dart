@@ -44,7 +44,10 @@ class _ProfilePageState extends State<ProfilePage> {
         .get();
 
     setState(() {
-      _posts = snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+      _posts = snapshot.docs.map((doc) => {
+        'id': doc.id,
+        ...doc.data() as Map<String, dynamic>,
+      }).toList();
     });
   }
 
@@ -55,10 +58,24 @@ class _ProfilePageState extends State<ProfilePage> {
       setState(() {
         _userData = docSnapshot;
         imageURL = _userData!['profilePictureUrl'] ?? '';
-
       });
     } else {
       print('User data not found.');
+    }
+  }
+
+  Future<void> _deletePost(String postId) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(_currentUser!.uid)
+          .collection('posts')
+          .doc(postId)
+          .delete();
+
+      await _fetchPosts();
+    } catch (e) {
+      print('Error deleting post: $e');
     }
   }
 
@@ -79,6 +96,30 @@ class _ProfilePageState extends State<ProfilePage> {
       print('Profile picture uploaded and URL saved to database successfully!');
     } catch (e) {
       print('Error uploading profile picture: $e');
+    }
+  }
+
+  Future<void> _showDeleteConfirmation(String postId) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Delete Post'),
+        content: Text('Are you sure you want to delete this post?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed ?? false) {
+      await _deletePost(postId);
     }
   }
 
@@ -165,36 +206,50 @@ class _ProfilePageState extends State<ProfilePage> {
                       itemCount: _posts.length,
                       itemBuilder: (context, index) {
                         final post = _posts[index];
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Image.network(
-                                post['postURL'],
-                                width: double.infinity,
-                                height: 200,
-                                fit: BoxFit.cover,
+                        return Stack(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Image.network(
+                                    post['postURL'],
+                                    width: double.infinity,
+                                    height: 200,
+                                    fit: BoxFit.cover,
+                                  ),
+                                  SizedBox(height: 8),
+                                  Text(
+                                    '${post['firstName']} ${post['lastName']}',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  SizedBox(height: 4),
+                                  Text(post['description']),
+                                  SizedBox(height: 4),
+                                  Text(
+                                    DateFormat('yyyy-MM-dd HH:mm')
+                                        .format((post['timeOfPost'] as Timestamp).toDate()),
+                                    style: TextStyle(
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              SizedBox(height: 8),
-                              Text(
-                                '${post['firstName']} ${post['lastName']}',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
+                            ),
+                            Positioned(
+                              top: 8,
+                              right: 8,
+                              child: IconButton(
+                                icon: Icon(Icons.delete, color: Colors.red),
+                                onPressed: () {
+                                  _showDeleteConfirmation(post['id']);
+                                },
                               ),
-                              SizedBox(height: 4),
-                              Text(post['description']),
-                              SizedBox(height: 4),
-                              Text(
-                                DateFormat('yyyy-MM-dd HH:mm')
-                                    .format((post['timeOfPost'] as Timestamp).toDate()),
-                                style: TextStyle(
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         );
                       },
                     ),
