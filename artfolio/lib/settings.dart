@@ -1,12 +1,15 @@
-import 'package:artfolio/splashScreen.dart';
+import 'package:artfolio/themes/button.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'userService.dart';
 import 'dart:async';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:artfolio/themes/themeProvider.dart';
+import 'package:artfolio/splashScreen.dart';
 
 class SettingsPage extends StatefulWidget {
   @override
@@ -111,107 +114,145 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Settings'),
-      ),
-      body: _userData != null
-          ? Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildEditableField(
-                    'First Name',
-                    _firstNameController,
-                    _isFirstNameEditable,
-                    () {
-                      setState(() {
-                        _isFirstNameEditable = true;
-                      });
-                    },
-                  ),
-                  SizedBox(height: 10),
-                  _buildEditableField(
-                    'Last Name',
-                    _lastNameController,
-                    _isLastNameEditable,
-                    () {
-                      setState(() {
-                        _isLastNameEditable = true;
-                      });
-                    },
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    'Email: ${_currentUser!.email}',
-                    style: GoogleFonts.podkova(
-                      textStyle: TextStyle(fontSize: 24),
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  _buildEditablePasswordField(),
-                  SizedBox(height: 10),
-                  _buildDobField(),
-                  SizedBox(height: 10),
-                  Text(
-                    'Registration Date: ${DateFormat('dd-MM-yyy').format((_userData!['registrationDatetime'] as Timestamp).toDate())}',
-                    style: GoogleFonts.podkova(
-                      textStyle: TextStyle(fontSize: 24),
-                    ),
-                  ),
-                  SizedBox(height: 50),
-                  Center(
-                    child: ElevatedButton(
-                      onPressed: _updateUserData,
-                      child: Text(
-                        'Update user information',
-                        style: GoogleFonts.podkova(
-                          textStyle: TextStyle(
-                            fontSize: 16,
-                            color: Color.fromARGB(255, 235, 109, 109),
-                          ),
-                        ),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color.fromARGB(255, 253, 239, 252),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  GestureDetector(
-                    onTap: () {
-                      FirebaseAuth.instance.signOut();
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => SplashScreen()),
-                      );
-                    },
-                    child: Container(
-                      width: 150,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: Center(
-                        child: Text(
-                          "Sign out",
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(
+              'Settings',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
               ),
-            )
-          : _currentUser != null
-              ? CircularProgressIndicator()
-              : Text(''),
+            ),
+          ),
+          backgroundColor: Theme.of(context).colorScheme.background,
+          body: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    myButton(
+                      color: Theme.of(context).colorScheme.secondary,
+                      onTap: () {
+                        Provider.of<ThemeProvider>(context, listen: false)
+                            .toggleTheme();
+                      },
+                    ),
+                    const SizedBox(width: 200),
+                    Text(
+                      "Change Theme",
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                        fontSize: 18,
+                      ),
+                    ),
+                  ],
+                ),
+                _userData != null
+                    ? Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildEditableField(
+                              'First Name',
+                              _firstNameController,
+                              _isFirstNameEditable,
+                              () {
+                                setState(() {
+                                  _isFirstNameEditable = true;
+                                });
+                              },
+                            ),
+                            SizedBox(height: 10),
+                            _buildEditableField(
+                              'Last Name',
+                              _lastNameController,
+                              _isLastNameEditable,
+                              () {
+                                setState(() {
+                                  _isLastNameEditable = true;
+                                });
+                              },
+                            ),
+                            SizedBox(height: 10),
+                            Text(
+                              'Email: ${_currentUser!.email}',
+                              style: GoogleFonts.podkova(
+                                textStyle: TextStyle(fontSize: 24),
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                            _buildEditablePasswordField(),
+                            SizedBox(height: 10),
+                            _buildDobField(),
+                            SizedBox(height: 10),
+                            Text(
+                              'Registration Date: ${DateFormat('dd-MM-yyy').format((_userData!['registrationDatetime'] as Timestamp).toDate())}',
+                              style: GoogleFonts.podkova(
+                                textStyle: TextStyle(fontSize: 24),
+                              ),
+                            ),
+                            SizedBox(height: 50),
+                            Center(
+                              child: ElevatedButton(
+                                onPressed: _updateUserData,
+                                child: Text(
+                                  'Update user information',
+                                  style: GoogleFonts.podkova(
+                                    textStyle: TextStyle(
+                                      fontSize: 16,
+                                      color: Color.fromARGB(255, 235, 109, 109),
+                                    ),
+                                  ),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Color.fromARGB(255, 253, 239, 252),
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 20),
+                            GestureDetector(
+                              onTap: () {
+                                FirebaseAuth.instance.signOut();
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => SplashScreen()),
+                                );
+                              },
+                              child: Container(
+                                width: 150,
+                                height: 50,
+                                decoration: BoxDecoration(
+                                  color: Colors.red,
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    "Sign out",
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : _currentUser != null
+                        ? Center(child: CircularProgressIndicator())
+                        : Text(''),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
