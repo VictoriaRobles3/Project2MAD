@@ -53,6 +53,32 @@ class _ProfilePageState extends State<ProfilePage> {
     });
   }
 
+  Future<void> _sendFriendRequest(String receiverId) async {
+    try {
+      // Get the current user's display name
+      final userDoc = await FirebaseFirestore.instance.collection('users').doc(_currentUser!.uid).get();
+      final senderName = userDoc.get('firstName') + ' ' + userDoc.get('lastName');
+
+      // Create a new document in the "friendRequests" subcollection
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(receiverId)
+          .collection('friendRequests')
+          .add({
+        'senderId': _currentUser!.uid,
+        'senderName': senderName,
+        'receiverId': receiverId,
+        'status': 'pending',
+        'timeOfRequest': FieldValue.serverTimestamp(),
+      });
+
+      // Show a success message or perform any other desired action
+      print('Friend request sent successfully!');
+    } catch (e) {
+      print('Error sending friend request: $e');
+    }
+  }
+
   void _fetchUserData() async {
     final DocumentSnapshot docSnapshot =
         await FirebaseFirestore.instance.collection('users').doc(_currentUser!.uid).get();
@@ -138,11 +164,10 @@ class _ProfilePageState extends State<ProfilePage> {
                 MaterialPageRoute(builder: (context) => FriendRequestPage()),
               );
             },
-            icon: Icon(Icons.person_add),
+            icon: Icon(Icons.person_sharp),
           ),
         ],
       ),
-
       body: _userData != null
           ? Padding(
               padding: const EdgeInsets.all(20.0),
@@ -173,32 +198,41 @@ class _ProfilePageState extends State<ProfilePage> {
                             : null,
                       ),
                       SizedBox(width: 20),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(height: 25),
-                          Text(
-                            '${_userData!['firstName']} ${_userData!['lastName']}',
-                            style: GoogleFonts.jetBrainsMono(
-                              textStyle: TextStyle(fontSize: 15),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(height: 25),
+                            Text(
+                              '${_userData!['firstName']} ${_userData!['lastName']}',
+                              style: GoogleFonts.jetBrainsMono(
+                                textStyle: TextStyle(fontSize: 15),
+                              ),
                             ),
-                          ),
-                          SizedBox(height: 10),
-                          Text(
-                            'Birthday: ${DateFormat('dd-MM-yyyy').format((_userData!['dob'] as Timestamp).toDate())}',
-                            style: GoogleFonts.jetBrainsMono(
-                              textStyle: TextStyle(fontSize: 13),
+                            SizedBox(height: 10),
+                            Text(
+                              'Birthday: ${DateFormat('dd-MM-yyyy').format((_userData!['dob'] as Timestamp).toDate())}',
+                              style: GoogleFonts.jetBrainsMono(
+                                textStyle: TextStyle(fontSize: 13),
+                              ),
                             ),
-                          ),
-                          SizedBox(height: 10),
-                          Text(
-                            'User since: ${DateFormat('dd-MM-yyyy').format((_userData!['registrationDatetime'] as Timestamp).toDate())}',
-                            style: GoogleFonts.jetBrainsMono(
-                              textStyle: TextStyle(fontSize: 12),
+                            SizedBox(height: 10),
+                            Text(
+                              'User since: ${DateFormat('dd-MM-yyyy').format((_userData!['registrationDatetime'] as Timestamp).toDate())}',
+                              style: GoogleFonts.jetBrainsMono(
+                                textStyle: TextStyle(fontSize: 12),
+                              ),
                             ),
-                          ),
-                          SizedBox(height: 50),
-                        ],
+                            SizedBox(height: 50),
+                          ],
+                        ),
+                      ),
+                      SizedBox(width: 20),
+                      IconButton(
+                        icon: Icon(Icons.person_add),
+                        onPressed: () {
+                          _sendFriendRequest(_userData!['userId']);
+                        },
                       ),
                     ],
                   ),
@@ -216,85 +250,85 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                   SizedBox(height: 20),
                   Expanded(
-  child: ListView.builder(
-    itemCount: _posts.length,
-    itemBuilder: (context, index) {
-      final post = _posts[index];
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
-        child: Stack(
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AspectRatio(
-                  aspectRatio: 1.0,
-                  child: Image.network(
-                    post['postURL'],
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '${post['firstName']} ${post['lastName']}',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
+                    child: ListView.builder(
+                      itemCount: _posts.length,
+                      itemBuilder: (context, index) {
+                        final post = _posts[index];
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: Stack(
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  AspectRatio(
+                                    aspectRatio: 1.0,
+                                    child: Image.network(
+                                      post['postURL'],
+                                      width: double.infinity,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                  SizedBox(height: 8),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              '${post['firstName']} ${post['lastName']}',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            SizedBox(height: 4),
+                                            Text(post['description']),
+                                            SizedBox(height: 4),
+                                            Text(
+                                              DateFormat('yyyy-MM-dd HH:mm').format((post['timeOfPost'] as Timestamp).toDate()),
+                                              style: TextStyle(
+                                                color: Colors.grey,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      IconButton(
+                                        icon: Icon(Icons.delete, color: Colors.red),
+                                        onPressed: () {
+                                          _showDeleteConfirmation(post['id']);
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
-                          SizedBox(height: 4),
-                          Text(post['description']),
-                          SizedBox(height: 4),
-                          Text(
-                            DateFormat('yyyy-MM-dd HH:mm').format((post['timeOfPost'] as Timestamp).toDate()),
-                            style: TextStyle(
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.delete, color: Colors.red),
-                      onPressed: () {
-                        _showDeleteConfirmation(post['id']);
+                        );
                       },
                     ),
-                  ],
-                ),
-              ],
-            ),
-          ],
-        ),
-      );
-    },
-  ),
-),
-
+                  ),
                 ],
               ),
             )
           : _currentUser != null
               ? Center(child: CircularProgressIndicator())
               : Text(''),
-              floatingActionButton: Align(
-      alignment: Alignment.bottomCenter,
-      child: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => AddNewPost()),
-        );
-      },
-      child: Icon(Icons.add),
-    ),
-    ));
+      floatingActionButton: Align(
+        alignment: Alignment.bottomCenter,
+        child: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => AddNewPost()),
+            );
+          },
+          child: Icon(Icons.add),
+        ),
+      ),
+    );
   }
 }
