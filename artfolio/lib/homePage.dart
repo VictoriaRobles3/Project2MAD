@@ -71,6 +71,7 @@ class HomePage extends StatelessWidget {
                       SizedBox(height: 8),
                       Text(description),
                       SizedBox(height: 8),
+                      if(timeOfBoard != null)
                       Text(
                         'Posted at: ${DateFormat('yyyy-MM-dd HH:mm:ss').format(timeOfBoard.toDate())}',
                         style: TextStyle(
@@ -78,12 +79,12 @@ class HomePage extends StatelessWidget {
                         ),
                       ),
                       SizedBox(height: 16),
-                      ElevatedButton(
+                     /* ElevatedButton(
                         onPressed: () {
                           _deleteBoard(boardId);
                         },
                         child: Text('Delete'),
-                      ),
+                      ), */
                     ],
                   ),
                 ),

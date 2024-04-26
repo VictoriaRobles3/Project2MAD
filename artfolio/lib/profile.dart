@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:artfolio/addNewPost.dart';
+import 'package:artfolio/detailPosts.dart';
 import 'package:artfolio/friendRequest.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -55,11 +56,9 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<void> _sendFriendRequest(String receiverId) async {
     try {
-      // Get the current user's display name
       final userDoc = await FirebaseFirestore.instance.collection('users').doc(_currentUser!.uid).get();
       final senderName = userDoc.get('firstName') + ' ' + userDoc.get('lastName');
 
-      // Create a new document in the "friendRequests" subcollection
       await FirebaseFirestore.instance
           .collection('users')
           .doc(receiverId)
@@ -72,7 +71,6 @@ class _ProfilePageState extends State<ProfilePage> {
         'timeOfRequest': FieldValue.serverTimestamp(),
       });
 
-      // Show a success message or perform any other desired action
       print('Friend request sent successfully!');
     } catch (e) {
       print('Error sending friend request: $e');
@@ -246,7 +244,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       if (file == null) return;
                       await _uploadImage(File(file.path));
                     },
-                    child: Text('Update Profile Picture'),
+                    child: Text('Update Profile Picture', style: TextStyle(color:Theme.of(context).colorScheme.onSurface),),
                   ),
                   SizedBox(height: 20),
                   Expanded(
@@ -258,52 +256,62 @@ class _ProfilePageState extends State<ProfilePage> {
                           padding: const EdgeInsets.symmetric(vertical: 8.0),
                           child: Stack(
                             children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  AspectRatio(
-                                    aspectRatio: 1.0,
-                                    child: Image.network(
-                                      post['postURL'],
-                                      width: double.infinity,
-                                      fit: BoxFit.cover,
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => DetailPostsPage(postId: post['id']),
                                     ),
-                                  ),
-                                  SizedBox(height: 8),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              '${post['firstName']} ${post['lastName']}',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
+                                  );
+                                },
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    AspectRatio(
+                                      aspectRatio: 1.0,
+                                      child: Image.network(
+                                        post['postURL'],
+                                        width: double.infinity,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                    SizedBox(height: 8),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                '${post['firstName']} ${post['lastName']}',
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                ),
                                               ),
-                                            ),
-                                            SizedBox(height: 4),
-                                            Text(post['description']),
-                                            SizedBox(height: 4),
-                                            Text(
-                                              DateFormat('yyyy-MM-dd HH:mm').format((post['timeOfPost'] as Timestamp).toDate()),
-                                              style: TextStyle(
-                                                color: Colors.grey,
+                                              SizedBox(height: 4),
+                                              Text(post['description']),
+                                              SizedBox(height: 4),
+                                              Text(
+                                                DateFormat('yyyy-MM-dd HH:mm').format((post['timeOfPost'] as Timestamp).toDate()),
+                                                style: TextStyle(
+                                                  color: Colors.grey,
+                                                ),
                                               ),
-                                            ),
-                                          ],
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                      IconButton(
-                                        icon: Icon(Icons.delete, color: Colors.red),
-                                        onPressed: () {
-                                          _showDeleteConfirmation(post['id']);
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                                        IconButton(
+                                          icon: Icon(Icons.delete, color: Colors.red),
+                                          onPressed: () {
+                                            _showDeleteConfirmation(post['id']);
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
