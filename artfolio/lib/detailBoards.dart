@@ -107,7 +107,7 @@ class _DetailBoardsPageState extends State<DetailBoardsPage> {
                     print('Comments Snapshot: ${snapshot.data!.docs}');
                     return ListView.builder(
                       shrinkWrap: true,
-                      reverse: true, // Start list from the bottom
+                      reverse: true,
                       itemCount: snapshot.data!.docs.length,
                       itemBuilder: (context, index) {
                         final comment = snapshot.data!.docs[index];

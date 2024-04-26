@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:artfolio/addNewPost.dart';
+import 'package:artfolio/chatPage.dart';
 import 'package:artfolio/detailPosts.dart';
-import 'package:artfolio/friendRequest.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -148,6 +148,52 @@ class _ProfilePageState extends State<ProfilePage> {
       await _deletePost(postId);
     }
   }
+  
+
+  Widget _buildUserListItem(DocumentSnapshot document){
+  Map<String, dynamic> data = document.data()! as Map<String, dynamic>;
+  if(_auth.currentUser!.uid != document.id){
+    return ListTile(
+      title: Text(data['email'].toString()),
+      onTap: (){
+        Navigator.push(context, MaterialPageRoute(builder: (context) => ChatPage(
+          receiverUserEmail: data['email'].toString(),
+          receiverUserID: document.id,
+        ),));
+      },
+    );
+  } else {
+    return Container();
+  }
+}
+
+
+
+Widget _buildUserList(){
+  return SingleChildScrollView(
+    child: Column(
+      children: [
+        StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance.collection('users').snapshots(),
+          builder: (context, snapshot){
+            if(snapshot.hasError){
+              return Text("Error");
+            }
+            if(snapshot.connectionState == ConnectionState.waiting){
+              return Text("loading...");
+            }
+            return ListView(
+              shrinkWrap: true,
+              children: snapshot.data!.docs.map<Widget>((doc) => _buildUserListItem(doc)).toList(),
+            );
+          }
+        ),
+      ],
+    ),
+  );
+}
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -157,9 +203,18 @@ class _ProfilePageState extends State<ProfilePage> {
         actions: [
           IconButton(
             onPressed: () {
-              Navigator.push(
+              showModalBottomSheet(
+                context: context,
+                builder: (BuildContext context){
+                  return _buildUserList();
+                }
+             /* Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => FriendRequestPage()),
+               // MaterialPageRoute(builder: (context) => FriendRequestPage()),
+                MaterialPageRoute(builder: (context) => seeUsersPage()),
+
+              ); */
+              
               );
             },
             icon: Icon(Icons.person_sharp),
@@ -226,12 +281,12 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                       ),
                       SizedBox(width: 20),
-                      IconButton(
+                    /*  IconButton(
                         icon: Icon(Icons.person_add),
                         onPressed: () {
-                          _sendFriendRequest(_userData!['userId']);
+                          _sendFriendRequest(_currentUser!.uid);
                         },
-                      ),
+                      ), */
                     ],
                   ),
                   ElevatedButton(
