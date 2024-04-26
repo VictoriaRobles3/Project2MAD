@@ -1,18 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class DetailPostsPage extends StatelessWidget {
-  final Map<String, dynamic> postDetails;
+class DetailBoardsPage extends StatelessWidget {
+  final Map<String, dynamic> boardDetails;
 
-  DetailPostsPage({required this.postDetails});
+  DetailBoardsPage({required this.boardDetails});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Post Details'),
+        title: Text('Board Details'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -22,13 +21,13 @@ class DetailPostsPage extends StatelessWidget {
             AspectRatio(
               aspectRatio: 16 / 9,
               child: Image.network(
-                postDetails['postURL'],
+                boardDetails['boardURL'],
                 fit: BoxFit.cover,
               ),
             ),
             SizedBox(height: 20),
             Text(
-              '${postDetails['firstName']} ${postDetails['lastName']}',
+              '${boardDetails['Fname']} ${boardDetails['Lname']}',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -36,14 +35,14 @@ class DetailPostsPage extends StatelessWidget {
             ),
             SizedBox(height: 10),
             Text(
-              postDetails['description'],
+              boardDetails['description'],
               style: TextStyle(
                 fontSize: 16,
               ),
             ),
             SizedBox(height: 10),
             Text(
-              'Posted on: ${DateFormat('yyyy-MM-dd HH:mm').format((postDetails['timeOfPost'] as Timestamp).toDate())}',
+              'Posted at: ${DateFormat('yyyy-MM-dd HH:mm:ss').format((boardDetails['timeOfBoard'] as Timestamp).toDate())}',
               style: TextStyle(
                 fontSize: 14,
                 color: Colors.grey,

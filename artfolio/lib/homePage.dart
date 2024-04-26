@@ -1,4 +1,5 @@
 import 'package:artfolio/addBoards.dart';
+import 'package:artfolio/detailBoards.dart';
 import 'package:artfolio/menu.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -48,44 +49,60 @@ class HomePage extends StatelessWidget {
               final timeOfBoard = board.get('timeOfBoard');
               final boardId = board.id;
 
-              return Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Image.network(
-                        boardURL,
-                        width: double.infinity,
-                        height: 200,
-                        fit: BoxFit.cover,
-                      ),
-                      SizedBox(height: 16),
-                      Text(
-                        '$firstName $lastName',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => DetailBoardsPage(boardDetails: {
+                        'boardURL': boardURL,
+                        'Fname': firstName,
+                        'Lname': lastName,
+                        'description': description,
+                        'timeOfBoard': timeOfBoard,
+                      }),
+                    ),
+                  );
+                },
+                child: Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Image.network(
+                          boardURL,
+                          width: double.infinity,
+                          height: 200,
+                          fit: BoxFit.cover,
                         ),
-                      ),
-                      SizedBox(height: 8),
-                      Text(description),
-                      SizedBox(height: 8),
-                      if(timeOfBoard != null)
-                      Text(
-                        'Posted at: ${DateFormat('yyyy-MM-dd HH:mm:ss').format(timeOfBoard.toDate())}',
-                        style: TextStyle(
-                          color: Colors.grey,
+                        SizedBox(height: 16),
+                        Text(
+                          '$firstName $lastName',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
                         ),
-                      ),
-                      SizedBox(height: 16),
-                     /* ElevatedButton(
-                        onPressed: () {
-                          _deleteBoard(boardId);
-                        },
-                        child: Text('Delete'),
-                      ), */
-                    ],
+                        SizedBox(height: 8),
+                        Text(description),
+                        SizedBox(height: 8),
+                        if(timeOfBoard != null)
+                        Text(
+                          'Posted at: ${DateFormat('yyyy-MM-dd HH:mm:ss').format(timeOfBoard.toDate())}',
+                          style: TextStyle(
+                            color: Colors.grey,
+                          ),
+                        ),
+                        SizedBox(height: 16),
+                       /* ElevatedButton(
+                          onPressed: () {
+                            _deleteBoard(boardId);
+                          },
+                          child: Text('Delete'),
+                        ), */
+                      ],
+                    ),
                   ),
                 ),
               );

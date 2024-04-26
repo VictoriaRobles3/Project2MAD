@@ -261,7 +261,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => DetailPostsPage(postId: post['id']),
+                                      builder: (context) => DetailPostsPage(postDetails: post),
                                     ),
                                   );
                                 },
