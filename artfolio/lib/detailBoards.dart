@@ -38,56 +38,56 @@ class _DetailBoardsPageState extends State<DetailBoardsPage> {
       appBar: AppBar(
         title: Text('Board Details'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            AspectRatio(
-              aspectRatio: 1.0,
-              child: Image.network(
-                widget.boardDetails['boardURL'],
-                fit: BoxFit.cover,
-              ),
-            ),
-            SizedBox(height: 20),
-            Text(
-              '${widget.boardDetails['Fname']} ${widget.boardDetails['Lname']}',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: 10),
-            Text(
-              widget.boardDetails['description'],
-              style: TextStyle(
-                fontSize: 16,
-              ),
-            ),
-            SizedBox(height: 10),
-            Text(
-              'Posted at: ${DateFormat('yyyy-MM-dd HH:mm:ss').format((widget.boardDetails['timeOfBoard'] as Timestamp).toDate())}',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey,
-              ),
-            ),
-            SizedBox(height: 20),
-            TextField(
-              controller: _commentController,
-              decoration: InputDecoration(
-                hintText: 'Leave a comment...',
-                border: OutlineInputBorder(),
-                suffixIcon: IconButton(
-                  icon: Icon(Icons.send),
-                  onPressed: _postComment,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              AspectRatio(
+                aspectRatio: 1.0,
+                child: Image.network(
+                  widget.boardDetails['boardURL'],
+                  fit: BoxFit.cover,
                 ),
               ),
-            ),
-            SizedBox(height: 20),
-            Expanded(
-              child: StreamBuilder<QuerySnapshot>(
+              SizedBox(height: 20),
+              Text(
+                '${widget.boardDetails['Fname']} ${widget.boardDetails['Lname']}',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 10),
+              Text(
+                widget.boardDetails['description'],
+                style: TextStyle(
+                  fontSize: 16,
+                ),
+              ),
+              SizedBox(height: 10),
+              Text(
+                'Posted at: ${DateFormat('yyyy-MM-dd HH:mm:ss').format((widget.boardDetails['timeOfBoard'] as Timestamp).toDate())}',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey,
+                ),
+              ),
+              SizedBox(height: 20),
+              TextField(
+                controller: _commentController,
+                decoration: InputDecoration(
+                  hintText: 'Leave a comment...',
+                  border: OutlineInputBorder(),
+                  suffixIcon: IconButton(
+                    icon: Icon(Icons.send),
+                    onPressed: _postComment,
+                  ),
+                ),
+              ),
+              SizedBox(height: 20),
+              StreamBuilder<QuerySnapshot>(
                 stream: _firestore
                     .collection('boards')
                     .doc(widget.boardId)
@@ -106,6 +106,8 @@ class _DetailBoardsPageState extends State<DetailBoardsPage> {
                   } else {
                     print('Comments Snapshot: ${snapshot.data!.docs}');
                     return ListView.builder(
+                      shrinkWrap: true,
+                      reverse: true, // Start list from the bottom
                       itemCount: snapshot.data!.docs.length,
                       itemBuilder: (context, index) {
                         final comment = snapshot.data!.docs[index];
@@ -128,8 +130,8 @@ class _DetailBoardsPageState extends State<DetailBoardsPage> {
                   }
                 },
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
