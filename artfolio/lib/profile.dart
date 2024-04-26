@@ -149,6 +149,7 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
   
+  /*
 
   Widget _buildUserListItem(DocumentSnapshot document){
   Map<String, dynamic> data = document.data()! as Map<String, dynamic>;
@@ -193,7 +194,7 @@ Widget _buildUserList(){
   );
 }
 
-
+*/
 
   @override
   Widget build(BuildContext context) {
@@ -201,7 +202,7 @@ Widget _buildUserList(){
       appBar: AppBar(
         title: Text('Profile'),
         actions: [
-          IconButton(
+        /*  IconButton(
             onPressed: () {
               showModalBottomSheet(
                 context: context,
@@ -218,7 +219,7 @@ Widget _buildUserList(){
               );
             },
             icon: Icon(Icons.person_sharp),
-          ),
+          ), */
         ],
       ),
       body: _userData != null

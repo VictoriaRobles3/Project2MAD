@@ -179,12 +179,12 @@ class _SettingsPageState extends State<SettingsPage> {
               SizedBox(height: 32),
               ElevatedButton(
                 onPressed: _updateUserData,
-                child: Text('Save Changes'),
+                child: Text('Save Changes', style: TextStyle(color:Theme.of(context).colorScheme.onSurface),),
               ),
               SizedBox(height: 16),
               ElevatedButton(
                 onPressed: _updatePassword,
-                child: Text('Change Password'),
+                child: Text('Change Password', style: TextStyle(color:Theme.of(context).colorScheme.onSurface),),
               ),
             ],
           ),

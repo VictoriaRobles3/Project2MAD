@@ -1,3 +1,4 @@
+import 'package:artfolio/chatContainer.dart';
 import 'package:artfolio/chatService.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -59,15 +60,20 @@ class _ChatPageState extends State<ChatPage>{
   Widget _buildMessageItem(DocumentSnapshot document){
     Map<String, dynamic> data = document.data() as Map<String, dynamic>;
     var alignment = (data['senderId'] == _firebaseAuth.currentUser!.uid)? Alignment.centerRight: Alignment.centerLeft;
+    
     return Container(
       alignment: alignment,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
       child: Column(
+        crossAxisAlignment: (data['senderId'] == _firebaseAuth.currentUser!.uid)? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        mainAxisAlignment: (data['senderId'] == _firebaseAuth.currentUser!.uid) ? MainAxisAlignment.end : MainAxisAlignment.start,
         children: [
           Text(data['senderEmail']),
-          Text(data['message']),
+          ChatContainer(message: data['message']),
         ],
       ),
-    );
+    ),);
   }
 
   Widget _buildMessageInput(){
@@ -77,7 +83,7 @@ class _ChatPageState extends State<ChatPage>{
           child: TextField(
             controller: _messageController,
             decoration: InputDecoration(
-            hintText: "Enter message",
+            hintText: "Write a message!",
             ),
             obscureText: false,
           ),

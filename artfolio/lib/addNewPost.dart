@@ -93,7 +93,7 @@ class _AddNewPostState extends State<AddNewPost> {
             SizedBox(height: 16),
             ElevatedButton(
               onPressed: _createPost,
-              child: Text('Post'),
+              child: Text('Post', style: TextStyle(color:Theme.of(context).colorScheme.onSurface),),
             ),
           ],
         ),
