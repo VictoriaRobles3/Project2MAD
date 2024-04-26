@@ -3,6 +3,7 @@ import 'package:artfolio/detailBoards.dart';
 import 'package:artfolio/menu.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 
 class HomePage extends StatelessWidget {
@@ -70,12 +71,16 @@ class HomePage extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Image.network(
+                        AspectRatio(
+                          aspectRatio: 1.0,
+                          child: Image.network(
                           boardURL,
-                          width: double.infinity,
-                          height: 200,
+      
                           fit: BoxFit.cover,
                         ),
+
+                        ),
+        
                         SizedBox(height: 16),
                         Text(
                           '$firstName $lastName',

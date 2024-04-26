@@ -19,7 +19,7 @@ class DetailBoardsPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             AspectRatio(
-              aspectRatio: 16 / 9,
+              aspectRatio: 1.0,
               child: Image.network(
                 boardDetails['boardURL'],
                 fit: BoxFit.cover,
