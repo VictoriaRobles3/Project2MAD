@@ -75,10 +75,8 @@ class HomePage extends StatelessWidget {
                           aspectRatio: 1.0,
                           child: Image.network(
                           boardURL,
-      
                           fit: BoxFit.cover,
                         ),
-
                         ),
         
                         SizedBox(height: 16),
