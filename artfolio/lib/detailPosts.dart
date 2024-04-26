@@ -9,8 +9,12 @@ class DetailPostsPage extends StatefulWidget {
   final String userLastName;
   final String postId;
 
-DetailPostsPage({required this.postDetails, required this.userFirstName, required this.userLastName, required this.postId,
-});
+  DetailPostsPage({
+    required this.postDetails,
+    required this.userFirstName,
+    required this.userLastName,
+    required this.postId,
+  });
 
   @override
   _DetailPostsPageState createState() => _DetailPostsPageState();
@@ -20,6 +24,21 @@ class _DetailPostsPageState extends State<DetailPostsPage> {
   final _commentController = TextEditingController();
   final _firestore = FirebaseFirestore.instance;
   final _auth = FirebaseAuth.instance;
+    User? _currentUser;
+
+
+  @override
+  void initState() {
+    super.initState();
+    _getCurrentUser();
+  }
+
+    void _getCurrentUser() async {
+    _currentUser = _auth.currentUser;
+    if (_currentUser != null) {
+      print('ERROR, null user');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,15 +62,15 @@ class _DetailPostsPageState extends State<DetailPostsPage> {
             Text(
               '${widget.postDetails['firstName']} ${widget.postDetails['lastName']}',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 10),
+            SizedBox(height: 5),
             Text(
               widget.postDetails['description'],
               style: TextStyle(
-                fontSize: 16,
+                fontSize: 20,
               ),
             ),
             SizedBox(height: 10),
@@ -76,17 +95,26 @@ class _DetailPostsPageState extends State<DetailPostsPage> {
             ),
             SizedBox(height: 20),
             Expanded(
-              child: StreamBuilder<QuerySnapshot>(
+  child: StreamBuilder<QuerySnapshot>(
   stream: _firestore
     .collection('users')
-    .doc(widget.postDetails['userId'])
+    .doc(_currentUser!.uid)
     .collection('posts')
     .doc(widget.postId)
     .collection('comments')
     .orderBy('timeOfComment', descending: true)
     .snapshots(),
   builder: (context, snapshot) {
-    if (snapshot.hasData) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return Center(child: CircularProgressIndicator());
+    } else if (snapshot.hasError) {
+      return Center(child: Text('Error: ${snapshot.error}'));
+    } else if (snapshot.data == null) {
+      return Center(child: Text('Loading...'));
+    } else if (snapshot.data!.docs.isEmpty){
+      return Center(child: Text('No comments yet.'));
+    } else {
+      print('Comments Snapshot: ${snapshot.data!.docs}');
       return ListView.builder(
         itemCount: snapshot.data!.docs.length,
         itemBuilder: (context, index) {
@@ -96,11 +124,9 @@ class _DetailPostsPageState extends State<DetailPostsPage> {
           return ListTile(
             title: Text(
               '$firstName $lastName',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14,),
             ),
-            subtitle: Text(comment['comment']),
+            subtitle: Text(comment['comment'], style: TextStyle(fontSize: 18,),),
             trailing: Text(
               DateFormat('yyyy-MM-dd HH:mm').format(
                 (comment['timeOfComment'] as Timestamp).toDate(),
@@ -109,12 +135,11 @@ class _DetailPostsPageState extends State<DetailPostsPage> {
           );
         },
       );
-    } else {
-      return Center(child: CircularProgressIndicator());
     }
   },
 ),
-            ),
+
+),
           ],
         ),
       ),
@@ -122,30 +147,29 @@ class _DetailPostsPageState extends State<DetailPostsPage> {
   }
 
   void _postComment() async {
-  final user = _auth.currentUser;
-  if (user != null) {
-    final comment = _commentController.text.trim();
-    if (comment.isNotEmpty) {
-      final userDoc = await _firestore.collection('users').doc(user.uid).get();
-      final userData = userDoc.data();
-      
-      final firstName = userData?['firstName'] ?? '';
-      final lastName = userData?['lastName'] ?? '';
-      
-      await _firestore
-          .collection('users')
-          .doc(user.uid)
-          .collection('posts')
-          .doc(widget.postId)
-          .collection('comments')
-          .add({
-            'comment': comment,
-            'firstName': firstName,
-            'lastName': lastName,
-            'timeOfComment': FieldValue.serverTimestamp(),
-          });
-      _commentController.clear();
+    final user = _auth.currentUser;
+    if (user != null) {
+      final comment = _commentController.text.trim();
+      if (comment.isNotEmpty) {
+        final userDoc = await _firestore.collection('users').doc(user.uid).get();
+        final userData = userDoc.data();
+        final firstName = userData?['firstName'] ?? '';
+        final lastName = userData?['lastName'] ?? '';
+
+        await _firestore
+            .collection('users')
+            .doc(user.uid)
+            .collection('posts')
+            .doc(widget.postId)
+            .collection('comments')
+            .add({
+          'comment': comment,
+          'firstName': firstName,
+          'lastName': lastName,
+          'timeOfComment': FieldValue.serverTimestamp(),
+        });
+        _commentController.clear();
+      }
     }
   }
-}
 }
