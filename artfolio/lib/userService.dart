@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class UserService {
   final CollectionReference usersCollection = FirebaseFirestore.instance.collection('users');
 
-  Future<void> registerUser(String firstName, String lastName, DateTime dateOfBirth) async {
+ /* Future<void> registerUser(String firstName, String lastName, DateTime dateOfBirth) async {
     try {
       await usersCollection.add({
         'firstName': firstName,
@@ -15,7 +15,7 @@ class UserService {
     } catch (e) {
       print('Error registering user: $e');
     }
-  }
+  } */
 
   Future<void> updateUserData(String userId, String firstName, String lastName) async {
     try {

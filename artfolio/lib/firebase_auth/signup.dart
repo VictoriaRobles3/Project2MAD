@@ -2,7 +2,6 @@ import 'package:artfolio/firebase_auth/authService.dart';
 import 'package:artfolio/firebase_auth/container.dart';
 import 'package:artfolio/firebase_auth/login.dart';
 import 'package:artfolio/homePage.dart';
-import 'package:artfolio/userService.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -200,7 +199,7 @@ class _SignupPageState extends State<SignupPage> {
       email, password, firstName, lastName, _selectedDateOfBirth!);
 
   if (user != null) {
-    await UserService().registerUser(firstName, lastName, _selectedDateOfBirth!);
+    await _auth.registerUser(email, password, firstName, lastName, _selectedDateOfBirth!);
 
     print("Account created successfully!");
     Navigator.pushAndRemoveUntil(
