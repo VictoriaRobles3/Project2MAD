@@ -1,6 +1,6 @@
-import 'package:artfolio/addBoards.dart';
 import 'package:artfolio/chatPage.dart';
 import 'package:artfolio/detailBoards.dart';
+import 'package:artfolio/detailPosts.dart';
 import 'package:artfolio/menu.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -45,91 +45,188 @@ class _HomePageState extends State<HomePage> {
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('boards').snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
+        builder: (context, boardSnapshot) {
+          if (boardSnapshot.hasError) {
             return Center(
-              child: Text('Error: ${snapshot.error}'),
+              child: Text('Error: ${boardSnapshot.error}'),
             );
           }
 
-          if (snapshot.connectionState == ConnectionState.waiting) {
+          if (boardSnapshot.connectionState == ConnectionState.waiting) {
             return Center(
               child: CircularProgressIndicator(),
             );
           }
 
-          final boards = snapshot.data!.docs;
+          final boards = boardSnapshot.data!.docs;
 
-          return ListView.builder(
-            itemCount: boards.length,
-            itemBuilder: (context, index) {
-              final board = boards[index];
-              final boardURL = board.get('boardURL');
-              final description = board.get('description');
-              final firstName = board.get('Fname');
-              final lastName = board.get('Lname');
-              final timeOfBoard = board.get('timeOfBoard');
+          return StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection('users')
+                .doc(_auth.currentUser!.uid)
+                .collection('posts')
+                .orderBy('timeOfPost', descending: true)
+                .snapshots(),
+            builder: (context, postSnapshot) {
+              if (postSnapshot.hasError) {
+                return Center(
+                  child: Text('Error: ${postSnapshot.error}'),
+                );
+              }
 
-              return GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => DetailBoardsPage(
-                        boardDetails: {
-                          'boardURL': boardURL,
-                          'Fname': firstName,
-                          'Lname': lastName,
-                          'description': description,
-                          'timeOfBoard': timeOfBoard,
-                        },
-                        boardId: board.id,
-                      ),
-                    ),
-                  );
-                },
-                child: Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        AspectRatio(
-                          aspectRatio: 1.0,
-                          child: Image.network(
-                            boardURL,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                        SizedBox(height: 16),
-                        Text(
-                          '$firstName $lastName',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        Text(description),
-                        SizedBox(height: 8),
-                        if (timeOfBoard != null)
-                          Text(
-                            'Posted at: ${DateFormat('yyyy-MM-dd HH:mm:ss').format(timeOfBoard.toDate())}',
-                            style: TextStyle(
-                              color: Colors.grey,
+              if (postSnapshot.connectionState == ConnectionState.waiting) {
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+
+              final posts = postSnapshot.data!.docs;
+
+              return ListView.builder(
+                itemCount: boards.length + posts.length,
+                itemBuilder: (context, index) {
+                  if (index < boards.length) {
+                    final board = boards[index];
+                    final boardURL = board.get('boardURL');
+                    final description = board.get('description');
+                    final firstName = board.get('Fname');
+                    final lastName = board.get('Lname');
+                    final timeOfBoard = board.get('timeOfBoard');
+
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => DetailBoardsPage(
+                              boardDetails: {
+                                'boardURL': boardURL,
+                                'Fname': firstName,
+                                'Lname': lastName,
+                                'description': description,
+                                'timeOfBoard': timeOfBoard,
+                              },
+                              boardId: board.id,
                             ),
                           ),
-                        SizedBox(height: 16),
-                      ],
-                    ),
-                  ),
-                ),
+                        );
+                      },
+                      child: Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              AspectRatio(
+                                aspectRatio: 1.0,
+                                child: Image.network(
+                                  boardURL,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              SizedBox(height: 16),
+                              Text(
+                                '$firstName $lastName',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              SizedBox(height: 8),
+                              Text(description),
+                              SizedBox(height: 8),
+                              if (timeOfBoard != null)
+                                Text(
+                                  'Posted at: ${DateFormat('yyyy-MM-dd HH:mm:ss').format(timeOfBoard.toDate())}',
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              SizedBox(height: 16),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  } else {
+                    final post = posts[index - boards.length];
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Stack(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => DetailPostsPage(
+                                    postDetails: post.data() as Map<String, dynamic>,
+                                    userFirstName: '${post['firstName']}',
+                                    userLastName: '${post['lastName']}',
+                                    postId: post.id,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                AspectRatio(
+                                  aspectRatio: 1.0,
+                                  child: Image.network(
+                                    post['postURL'],
+                                    width: double.infinity,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                SizedBox(height: 8),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            '${post['firstName']} ${post['lastName']}',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          SizedBox(height: 4),
+                                          Text(post['description']),
+                                          SizedBox(height: 4),
+                                          Text(
+                                            DateFormat('yyyy-MM-dd HH:mm').format((post['timeOfPost'] as Timestamp).toDate()),
+                                            style: TextStyle(
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  /*  IconButton(
+                                      icon: Icon(Icons.delete, color: Colors.red),
+                                      onPressed: () {
+                                        _showDeleteConfirmation(post.id);
+                                      },
+                                    ), */
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                },
               );
             },
           );
         },
       ),
-      floatingActionButton: Align(
+     /* floatingActionButton: Align(
         alignment: Alignment.bottomCenter,
         child: FloatingActionButton(
           onPressed: () {
@@ -140,9 +237,11 @@ class _HomePageState extends State<HomePage> {
           },
           child: Icon(Icons.add),
         ),
-      ),
+      ), */
     );
   }
+
+  
 
   Widget _buildUserListItem(DocumentSnapshot document) {
     Map<String, dynamic> data = document.data() as Map<String, dynamic>;

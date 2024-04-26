@@ -1,6 +1,5 @@
 import 'package:artfolio/themes/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class ThemeProvider with ChangeNotifier{
   ThemeData _themeData = lightMode;
