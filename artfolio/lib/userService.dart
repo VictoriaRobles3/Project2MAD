@@ -41,4 +41,8 @@ class UserService {
       throw e;
     }
   }
+
+  Future<DocumentSnapshot<Map<String, dynamic>>> getUserData(String userId) async {
+  return await usersCollection.doc(userId).get() as DocumentSnapshot<Map<String, dynamic>>;
+}
 }

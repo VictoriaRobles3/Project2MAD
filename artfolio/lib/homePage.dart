@@ -46,6 +46,7 @@ class HomePage extends StatelessWidget {
               final firstName = board.get('Fname');
               final lastName = board.get('Lname');
               final timeOfBoard = board.get('timeOfBoard');
+              final boardId = board.id;
 
               return Card(
                 child: Padding(
@@ -76,6 +77,13 @@ class HomePage extends StatelessWidget {
                           color: Colors.grey,
                         ),
                       ),
+                      SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: () {
+                          _deleteBoard(boardId);
+                        },
+                        child: Text('Delete'),
+                      ),
                     ],
                   ),
                 ),
@@ -97,5 +105,13 @@ class HomePage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _deleteBoard(String boardId) async {
+    try {
+      await FirebaseFirestore.instance.collection('boards').doc(boardId).delete();
+    } catch (e) {
+      print('Error deleting board: $e');
+    }
   }
 }
