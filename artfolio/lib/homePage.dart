@@ -61,7 +61,7 @@ class HomePage extends StatelessWidget {
                         'Lname': lastName,
                         'description': description,
                         'timeOfBoard': timeOfBoard,
-                      }),
+                      }, boardId: board.id,),
                     ),
                   );
                 },

@@ -127,11 +127,11 @@ class _DetailPostsPageState extends State<DetailPostsPage> {
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14,),
             ),
             subtitle: Text(comment['comment'], style: TextStyle(fontSize: 18,),),
-            trailing: Text(
+            trailing: comment['timeOfComment'] != null ? Text(
               DateFormat('yyyy-MM-dd HH:mm').format(
                 (comment['timeOfComment'] as Timestamp).toDate(),
               ),
-            ),
+            )  : SizedBox(),
           );
         },
       );
