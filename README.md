@@ -40,7 +40,3 @@ Messaging
 
 - On the top right corner of your feed, you will see a messaging icon.
 - Click on the messaging icon to start a new conversation with other app users.
-Use Control + Shift + m to toggle the tab key moving focus. Alternatively, use esc then tab to move to the next interactive element on the page.
-No file chosen
-Attach files by dragging & dropping, selecting or pasting them.
-Editing Project2MAD/README.md at main · VictoriaRobles3/Project2MAD
